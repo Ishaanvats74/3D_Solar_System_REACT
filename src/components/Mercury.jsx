@@ -1,6 +1,10 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, OrbitControls, useTexture, Bounds } from "@react-three/drei";
-import { useRef } from "react";
+import { useGLTF, OrbitControls, useTexture } from "@react-three/drei";
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const MercuryModel = () => {
   const { scene } = useGLTF("/mercury/scene.gltf");
@@ -15,15 +19,33 @@ const MercuryModel = () => {
     }
   });
 
-  const MercuryRef = useRef();
+  const mercuryRef = useRef();
+
   useFrame(() => {
-    if (MercuryRef.current) {
-      MercuryRef.current.rotation.y += 0.003;
+    if (mercuryRef.current) {
+      mercuryRef.current.rotation.y += 0.003;
     }
   });
 
+  useEffect(() => {
+    if (mercuryRef.current) {
+      gsap.to(mercuryRef.current.scale, {
+        x: 2,
+        y: 2,
+        z: 2,
+        scrollTrigger: {
+          trigger: "#mercury-section", 
+          start: "center center",
+          end: "bottom center",
+          scrub: true,
+          markers: true,
+        },
+      });
+    }
+  }, []);
+
   return (
-    <group position={[0, 0, 0]} ref={MercuryRef}>
+    <group ref={mercuryRef}>
       <primitive object={scene} scale={[1, 1, 1]} />
     </group>
   );
@@ -31,16 +53,14 @@ const MercuryModel = () => {
 
 const MercuryScene = () => {
   return (
-    <Canvas style={{ width: "100vw", height: "100vh" }}>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-
-      <Bounds fit clip margin={1.2}>
+    <div id="mercury-section" style={{ height: "100vh" }}>
+      <Canvas style={{ width: "100%", height: "100%" }}>
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[5, 5, 5]} intensity={1} />
         <MercuryModel />
-      </Bounds>
-
-      <OrbitControls makeDefault enableZoom={false}/>
-    </Canvas>
+        <OrbitControls makeDefault enableZoom={false} />
+      </Canvas>
+    </div>
   );
 };
 

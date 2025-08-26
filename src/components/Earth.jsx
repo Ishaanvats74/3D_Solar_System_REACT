@@ -9,6 +9,8 @@ const EarthModel = () => {
     roughnessMap: "/planet_earth/textures/Material.001_metallicRoughness.png",
   });
 
+  
+
   scene.traverse((child) => {
     if (child.isMesh) {
       child.material.map = texture.map;
